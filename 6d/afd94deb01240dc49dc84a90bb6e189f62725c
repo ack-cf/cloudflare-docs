@@ -1,0 +1,19 @@
+src/content/docs/cache/guides/invalidate-cache.mdx
+  s_7bbaa708d25016::t_7585c26eb296fd 4,11,13,15,17,19-24,26,28,30,32,34,36,38-86,90,96,98,102,114,130,134,136,143,145,155,157,159,169,171,175,179-181,188,192,194-199,201,203,207,209,211,213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6dafd94deb01240dc49dc84a90bb6e189f62725c",
+  "prompts": {},
+  "sessions": {
+    "s_7bbaa708d25016": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f5232b9f1fferwscYOsCW4R2QE",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Alex Krivit <akrivit@cloudflare.com>"
+    }
+  }
+}
