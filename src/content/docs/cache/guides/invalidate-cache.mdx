@@ -230,6 +230,10 @@ Tiered Cache and concurrent requests can affect which status you observe. With T
 
 Confirm that the content was cached and that your selectors match it. Also confirm that your origin returns an `ETag` or `Last-Modified` header and responds to conditional requests with `304 Not Modified`.
 
+Check these headers in a request sent directly to your origin, not through Cloudflare. When your origin sends neither header, responses from Cloudflare can still include a `Last-Modified` header because of [smart revalidation towards users](/cache/concepts/revalidation/#smart-revalidation-towards-users). Cloudflare does not use that header when it revalidates with your origin.
+
+If the content was also purged after it was cached, the purge takes precedence, and the next request fetches the full response.
+
 ### Visitors receive stale content
 
 Cloudflare serves stale content during revalidation if your origin response includes `stale-while-revalidate`. It also serves stale content when your origin returns an error, unless the response includes `stale-if-error=0`. Check these directives in your origin responses and the [Serve stale content while revalidating](/cache/how-to/cache-rules/settings/#serve-stale-content-while-revalidating) setting in Cache Rules. To stop serving cached content, [purge](/cache/how-to/purge-cache/) it instead.
