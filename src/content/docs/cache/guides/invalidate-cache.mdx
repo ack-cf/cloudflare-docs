@@ -198,22 +198,25 @@ To verify revalidation, use a cacheable test URL whose origin returns an `ETag` 
      "https://www.example.com/images/product.jpg"
    ```
 
+   If the response still returns `HIT`, wait a few seconds and request the URL again. The invalidation can take a moment to reach every data center.
+
 4. In your origin logs, confirm that Cloudflare sent a conditional request and received a `304` response.
 
 </Steps>
 
 For cached content, expect the following results:
 
-| Result                                                | `CF-Cache-Status`         |
-| ----------------------------------------------------- | ------------------------- |
-| Your origin confirms that the content has not changed | `REVALIDATED`, then `HIT` |
-| Your origin returns new content                       | `EXPIRED`, then `HIT`     |
-| Cloudflare serves stale content while revalidating    | `UPDATING`, then `HIT`    |
-| The content is no longer cached                       | `MISS`                    |
+| Result                                                                                          | `CF-Cache-Status`         |
+| ----------------------------------------------------------------------------------------------- | ------------------------- |
+| Your origin confirms that the content has not changed                                           | `REVALIDATED`, then `HIT` |
+| Your origin returns new content, or the cached response has no `ETag` or `Last-Modified` header | `EXPIRED`, then `HIT`     |
+| Cloudflare serves stale content while revalidating                                              | `UPDATING`, then `HIT`    |
+| Your origin returns an error or cannot be reached                                               | `STALE`                   |
+| The content is no longer cached                                                                 | `MISS`                    |
 
 When your origin returns `304`, Cloudflare can still return `200 OK` to the visitor with the cached content.
 
-Tiered Cache and concurrent requests can affect which status you observe. Use your origin logs to confirm revalidation. For status definitions, refer to [Cloudflare cache responses](/cache/concepts/cache-responses/).
+Tiered Cache and concurrent requests can affect which status you observe. With Tiered Cache, an upper-tier data center revalidates with your origin. If the data center that handles your request no longer has the content, you can see `MISS` even though your origin returned `304`. Use your origin logs to confirm revalidation. For status definitions, refer to [Cloudflare cache responses](/cache/concepts/cache-responses/).
 
 ## Troubleshoot invalidation
 
