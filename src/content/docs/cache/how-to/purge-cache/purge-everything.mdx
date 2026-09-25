@@ -36,4 +36,4 @@ For information on rate limits, refer to the [Availability and limits](/cache/ho
 
 ## Resulting cache status
 
-Purge Everything invalidates the resource, resulting in the `CF-Cache-Status` header indicating [`EXPIRED`](/cache/concepts/cache-responses/#expired) for subsequent requests.
+Purge Everything deletes the resource, resulting in the `CF-Cache-Status` header indicating [`MISS`](/cache/concepts/cache-responses/#miss) for subsequent requests. To mark all cached content as stale instead, [invalidate](/cache/guides/invalidate-cache/) it.
