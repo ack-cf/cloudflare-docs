@@ -16,12 +16,12 @@ Invalidation is sometimes called soft purge.
 
 Purge and invalidation accept the same selectors: URLs, cache tags, hostnames, URL prefixes, or everything. They differ in what happens to matching content:
 
-| Behavior       | Purge                                      | Invalidate                             |
-| -------------- | ------------------------------------------ | -------------------------------------- |
-| Cached content | Removed                                    | Kept and marked as stale               |
-| Next request   | Fetches the full response from your origin | Revalidates with your origin           |
-| Stale content  | Not served                                 | Served if your cache settings allow it |
-| API endpoint   | `purge_cache`                              | `invalidate_cache`                     |
+| Behavior       | Purge                                      | Invalidate                                                |
+| -------------- | ------------------------------------------ | --------------------------------------------------------- |
+| Cached content | Removed                                    | Kept and marked as stale                                  |
+| Next request   | Fetches the full response from your origin | Revalidates with your origin                              |
+| Stale content  | Not served                                 | Can be served while revalidating or if your origin errors |
+| API endpoint   | `purge_cache`                              | `invalidate_cache`                                        |
 
 Use purge when cached content must not be served again. Update or remove the content at your origin before you purge it. Otherwise, the next request can cache the old version again.
 
@@ -37,22 +37,22 @@ Invalidation does not guarantee that content is reused. Cloudflare fetches the f
 
 ### Stale content during revalidation
 
-Your cache settings determine whether visitors receive stale content while Cloudflare revalidates:
+Your cache settings and your origin's health determine whether visitors receive stale content while Cloudflare revalidates:
 
 - With `stale-while-revalidate`, Cloudflare can serve stale content while it revalidates in the background.
-- With `stale-if-error`, Cloudflare can serve stale content if your origin returns an error.
-- Without these directives, requests wait for revalidation to complete.
+- Without `stale-while-revalidate`, requests wait for revalidation to complete.
+- If your origin returns a `5xx` error or cannot be reached, Cloudflare can serve stale content even if the response has no `stale-if-error` directive, for as long as the content stays in cache. To limit this, set `stale-if-error` in the response. To prevent it, set `stale-if-error=0`.
 
 For content that is still fresh, these stale windows start when you invalidate it, not when it would have expired. Invalidation never extends a stale window that has already ended.
 
-For example, if you invalidate a cached response with the following headers before it expires, Cloudflare can serve it stale for up to 30 seconds after the invalidation while it revalidates:
+For example, if you invalidate a cached response with the following headers before it expires, Cloudflare can serve it stale for up to 30 seconds after the invalidation while it revalidates. The response does not set `stale-if-error`, so Cloudflare can also keep serving it stale if your origin returns an error:
 
 ```http
 Cache-Control: public, max-age=3600, stale-while-revalidate=30
 ETag: "product-v1"
 ```
 
-Other directives and Cache Rules settings can prevent Cloudflare from serving stale content. For details, refer to [Revalidation](/cache/concepts/revalidation/).
+Other directives can prevent Cloudflare from serving stale content, and the [Serve stale content while revalidating](/cache/how-to/cache-rules/settings/#serve-stale-content-while-revalidating) setting in Cache Rules can turn off serving stale content during revalidation. That setting does not affect serving stale content when your origin returns an error. For details, refer to [Revalidation](/cache/concepts/revalidation/) and [Cache-Control directives](/cache/concepts/cache-control/#revalidation).
 
 ### Cache Reserve
 
@@ -223,4 +223,4 @@ Confirm that the content was cached and that your selectors match it. Also confi
 
 ### Visitors receive stale content
 
-Check the `stale-while-revalidate` and `stale-if-error` directives in your origin responses, and check your Cache Rules settings. To stop serving cached content, [purge](/cache/how-to/purge-cache/) it instead.
+Cloudflare serves stale content during revalidation if your origin response includes `stale-while-revalidate`. It also serves stale content when your origin returns an error, unless the response includes `stale-if-error=0`. Check these directives in your origin responses and the [Serve stale content while revalidating](/cache/how-to/cache-rules/settings/#serve-stale-content-while-revalidating) setting in Cache Rules. To stop serving cached content, [purge](/cache/how-to/purge-cache/) it instead.
